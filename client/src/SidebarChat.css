@@ -15,3 +15,16 @@
 .SidebarChat__info{
     margin-left: 15px;
 }
+.sidebar__links{
+    text-decoration: none;
+}
+.sidebar__links h2{
+    color: blue;
+}
+.sidebar__links .recieved{
+    font-weight: 700;
+   
+}
+.sidebar__links p{
+    color: black;
+}

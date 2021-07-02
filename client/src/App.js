@@ -1,35 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import {Route, BrowserRouter as Router, Switch} from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Switch} from 'react-router-dom';
 import './App.css';
 import Chat from './Chat';
-import Sidebar from './Sidebar';
 import Login from './Login';
-
+import {AuthRoutes, GuestRoutes} from './utils/route';
+import Home from './Home';
+import { registerServiceWorker } from "./serviceWorker";
+import NewGroup from './NewGroup';
+import Sidebar from './Sidebar';
 function App() {
-  const [User, setUser] = useState(null)
-  
 
-  // console.log(Messages);
+  // const route = location.href
+
+  useEffect(()=>{
+      async function registerSW(){
+        await registerServiceWorker().then(()=>{
+          console.log("service worker registered")
+        })
+      }
+      registerSW();
+     
+  },[])
+
+  useEffect(() => {
+    var v = document.body;
+    v.className = "application_home";
+  }, [])
+    
+
   return (
-    <div className="app">
-      {!User ?
-      <Login />
-      : 
-     <div className="app_body">
-      <Sidebar />
        <Router>
-         <Switch>
-           <Route path="/thread/:roomId" >
-              <Chat />
-          </Route>
-          <Route path="/" exact>
-            <h1>Home</h1>
-          </Route>
+         <Switch>  
+          <GuestRoutes path="/login" component={Login} ></GuestRoutes>
+          <div className="app">  
+          <div className="app_body">
+          <Sidebar />
+          <AuthRoutes path="/thread/:roomId/:isgroup?" component={Chat} ></AuthRoutes>
+          <AuthRoutes path="/createNewRoom" component={NewGroup} ></AuthRoutes>
+          <AuthRoutes path="/" component={Home} exact></AuthRoutes>
+          </div>
+        </div>
           </Switch>
         </Router>
-     </div>
-}
-    </div>
+     
   );
 }
 

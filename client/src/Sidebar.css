@@ -10,6 +10,7 @@
     justify-content: space-between;
     padding: 20px;
     border-right: 1px solid lightgray;
+    background: #c2ffe5b0;
 }
 .sidebar__headerRight{
     display: flex;
@@ -18,15 +19,16 @@
     min-width: 10vw;
 }
 
-.sidebar__headerRight > .MuiSvgIcon-root{
-    margin-right: 2vw;
+.sidebar__headerRight .MuiSvgIcon-root{
+    /* margin-right: 2vw; */
     font-size: 24px !important;
+    color: #00296b !important;
 }
 
 .sidebar__search{
     display: flex;
     align-items: center;
-    background-color: #f6f6f6;
+    background-color: #bcffe3;
     height: 39px;
     padding: 10px;
 }
@@ -41,7 +43,7 @@
 
 .sidebar__searchContainer > .MuiSvgIcon-root{
     /* margin-right: 2vw; */
-    color: gray;
+    color: #00296b;
     padding: 10px;
     /* font-size: 24px !important; */
 }
@@ -53,6 +55,27 @@
 }
 .sidebar__chats{
     flex: 1;
-    background-color: white;
-    overflow: scroll;
+    background-color: #c2ffe5b0;
+    overflow-y: auto;
 }
+.createNewGroup{
+    font-size: 15px;
+    margin-left: 10px;
+}
+.sidebar__searchContainer a{
+    text-decoration: none;
+}
+.sidebar__searchContainer .MuiIconButton-root:hover {
+    background-color: inherit !important;
+}
+
+.sidebar__tabs .MuiBox-root {
+    padding: 0px;
+}
+
+@media only screen and (max-width: 640px) {
+    .sidebar {
+        flex: 1 1;
+        /* display: flex !important; */
+    }
+    }

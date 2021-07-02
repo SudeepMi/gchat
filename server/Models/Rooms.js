@@ -1,9 +1,11 @@
 import mongoose from 'mongoose'
 
-const appSchema = mongoose.Schema({
-    user_1:String,
-    user_2:String,
+const RoomsappSchema = mongoose.Schema({
+    user1:String,
+    user2:String,
+    consent:Object,
     roomName: String,
+    CreatedOn:Date,
 })
 
-export default mongoose.model("messages",appSchema);
+export default mongoose.model("rooms",RoomsappSchema);

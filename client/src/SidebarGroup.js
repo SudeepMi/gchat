@@ -10,10 +10,7 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import Typography from '@material-ui/core/Typography';
 
 
-
-
-
-function SidebarChat({room}) {
+function SidebarGroup({room}) {
 
     const [chatUser, setchatUser] = useState({}); //get recipents
     const currentUser = getSavedLoginInfo(); // current loggedin user
@@ -54,11 +51,11 @@ function SidebarChat({room}) {
 
     return (
         
-       <Link to={location=>({...location,pathname:`/thread/${room._id}`})} exact="true" className="sidebar__links">
+       <Link to={location=>({...location,pathname:`/thread/${room._id}/true`})} exact="true" className="sidebar__links">
             <div className="SidebarChat">
-                {  !loading ? (<><Avatar src={chatUser.photoUrl } />
+                {  !loading ? (<><Avatar />
             <div className="SidebarChat__info">
-                <h2>{room.roomName ? "Room name" : chatUser.displayName }</h2>
+                <h2>{room.roomName }</h2>
                 <p className={(lastMsg.sender!==currentUser.uid) ? 'recieved':''}>{ ReactEmoji.emojify(lastMsg.message) }</p>
             </div></>) : <>
         <Typography>
@@ -73,4 +70,4 @@ function SidebarChat({room}) {
            
 }
 
-export default withRouter(SidebarChat)
+export default withRouter(SidebarGroup)

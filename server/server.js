@@ -3,8 +3,16 @@ import express from 'express'
 import mongoose from "mongoose"
 const app = express()
 import Messages from './Models/dbMessages.js';
+import Users from './Models/Users.js';
 import Pusher from 'pusher'
 import cors from 'cors'
+import Rooms from './Models/Rooms.js';
+import Groups from './Models/Group.js';
+import multer from 'multer'
+const upload = multer({ dest: 'uploads/' });
+// import  ObjectId from 'mongodb';
+import pkg from 'mongodb';
+const { ObjectId } = pkg;
 const port = process.env.PORT || 9000
 
 app.use(express.json());
@@ -42,9 +50,11 @@ db.once('open',()=>{
         if(change.operationType==='insert'){
             const details = change.fullDocument;
             pusher.trigger('messages','inserted',{
-                name:details.name,
+                sender:details.sender,
                 message:details.message,
-                timestamp:details.timestamp
+                timestamp:details.timestamp,
+                status:0,
+                threadId:details.threadId
             });
         }else{
             console.log('error on pusher');
@@ -60,14 +70,11 @@ const pusher = new Pusher({
   useTLS: true
 });
 
-pusher.trigger("my-channel", "my-event", {
-  message: "hello world"
-});
-
 
 
 app.post('/messages/new', (req,res)=>{
-    const dbMessage = req.body
+    const dbMessage = req.body.data;
+//    console.log(dbMessage);
     Messages.create(dbMessage, (err,data)=>{
         if(err){
             res.status(500).send(err)
@@ -78,9 +85,21 @@ app.post('/messages/new', (req,res)=>{
     
 })
 
+app.post('/createUser', (req,res)=>{
+    const data = req.body
+    Users.create(data, (err,data)=>{
+        if(err){
+            res.status(500).send(err)
+        }else{
+            res.status(201).send(data)
+        }
+    })
+    // console.log(data)
+})
 
 app.get('/messages/sync', (req,res)=>{
-    Messages.find((err,data)=>{
+    
+    Messages.find({threadId:req.query.roomId},(err,data)=>{
         if(err){
             res.status(500).send(err)
         }else{
@@ -89,6 +108,135 @@ app.get('/messages/sync', (req,res)=>{
     }) 
     
 })
+
+app.post('/findUser', (req,res)=>{
+    const email = req.body;
+    // console.log(email);
+    Users.find(email,(err,data)=>{
+        if(err){
+            res.status(500).send(err)
+        }else{
+            if(data[0]){
+            const newData = {
+                displayName:data[0].displayName,
+                uid: data[0].uid,
+                photoUrl:data[0].photoUrl,
+                email:data[0].email,
+                phone:data[0].phone,
+                status:true,
+            }
+            // console.log(data);
+            res.status(200).send(newData)
+        }else{
+            res.status(200).send({status: false})
+        }
+        }
+    }) 
+    
+})
+
+app.post('/createNewRoom', (req,res)=>{
+    // console.log(req.body);
+    const data = {
+        user1: req.body.user1,
+        user2: req.body.user2,
+        consent:{
+            user1:true,
+            user2:false,
+        },
+        createdOn: Date.now()
+    }
+    
+    // console.log(data);
+    Rooms.create(data,(err,data)=>{
+        if(err){
+            res.status(500).send(err)
+        }else{
+            res.status(201).send(data)
+        }
+    }) 
+    
+})
+
+app.post('/getAllrooms', (req,res)=>{
+    const id = req.body.id;
+    // console.log(req);
+    Rooms.find({ $or:[{ user1: id},{user2: id}]},(err,data)=>{
+        if(err){
+            res.status(500).send(err)
+        }else{
+            // console.log(data);
+
+            res.status(200).send(data)
+        }
+    }) 
+    
+})
+
+
+app.post('/createNewGroup', (req,res)=>{
+    // console.log(req.body);
+    const data = {
+       roomName: req.body.roomName,
+       members: req.body.members,
+        createdOn: Date.now()
+    }
+    
+    // console.log(data);
+    Groups.create(data,(err,data)=>{
+        if(err){
+            res.status(500).send(err)
+        }else{
+            res.status(201).send(data)
+        }
+    }) 
+    
+})
+
+app.post('/getAllgroups', (req,res)=>{
+    const id = req.body.id;
+    // console.log(id);
+    Groups.find({ members: id},(err,data)=>{
+        if(err){
+            res.status(500).send(err)
+        }else{
+            // console.log(data);
+
+            res.status(200).send(data)
+        }
+    }) 
+    
+})
+
+
+app.post('/findGroup', (req,res)=>{
+    const _id = req.body.id;
+    // console.log(_id);
+    Groups.findOne({"_id":  ObjectId(_id)},(err,data)=>{
+        if(err){
+            res.status(500).send(err)
+        }else{
+            if(data){
+           
+            // console.log(data);
+            res.status(200).send(data)
+        }
+        }
+    }) 
+    
+})
+
+
+
+
+
+
+
+
+
+
+
+
 
 //middleware
 

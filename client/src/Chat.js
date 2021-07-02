@@ -1,35 +1,75 @@
 import React, { useState, useEffect } from 'react'
 import './Chat.css'
 import { Avatar, IconButton } from '@material-ui/core'
-import SearchOutlined from '@material-ui/icons/SearchOutlined'
-import AttachFile from '@material-ui/icons/AttachFile'
 import MoreVert from '@material-ui/icons/MoreVert'
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon'
-import MicIcon from '@material-ui/icons/Mic'
 import axios from './axios';
 import { useParams } from 'react-router';
 import Pusher from 'pusher-js'
+import { getSavedLoginInfo, getThreadRecipent } from './utils/users'
+import ScrollToBottom from 'react-scroll-to-bottom';
+import SubdirectoryArrowLeftIcon from '@material-ui/icons/SubdirectoryArrowLeft';
+import SubdirectoryArrowRightIcon from '@material-ui/icons/SubdirectoryArrowRight';
+import Picker from 'emoji-picker-react';
+import ReactEmoji from 'react-emoji';
+import AttachmentIcon from '@material-ui/icons/Attachment';
+import Sidebar from './Sidebar'
+import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+
+
 
 
 function Chat() {
-
+   
     // const [messages, setMessage] = useState('');
-    const { roomId } = useParams();
-
+    const { roomId, isgroup } = useParams();
+    const User = getSavedLoginInfo()
     const [userMessage, setUserMessage] = useState('');
-    const [Messages, setMessages] = useState([])
+    const [Messages, setMessages] = useState([]);
+    const [recipentName, setrecipentName] = useState('')
+    const [chooseEmoji, setchooseEmoji] = useState(false);
 
+    
+    const onEmojiClick = (event, emojiObject) => {
+        event.preventDefault();
+        // console.log();
+        setUserMessage(String(userMessage)+(emojiObject.emoji));
+    };
     useEffect(() => {
-        axios.get('/messages/sync').then((res) => {
-            console.log(res.data);
+        var v = document.body;
+            v.className = " main__chat__body";
+        
+    }, [])
+   
+
+    useEffect( () => {
+        axios.get(`/messages/sync?roomId=${roomId}`).then((res) => {
+            // console.log(res);
             setMessages(res.data);
         })
-    }, [])
+        if (isgroup) {
+            axios.post('/findGroup',{id:roomId}).then((res)=>{
+                console.log(res)
+                setrecipentName(res.data)
+            })
+        }
+    }, [roomId])
+
+    useEffect(()=>{
+        const recipent  = getThreadRecipent(roomId)
+        
+        if(recipent){
+            setrecipentName(recipent)
+        }
+    },[roomId])
+
+
 
     useEffect(() => {
 
         // Enable pusher logging - don't include this in production
-        Pusher.logToConsole = true;
+        // Pusher.logToConsole = true;
 
         const pusher = new Pusher('2142cda6d39765cba2a9', {
             cluster: 'ap2'
@@ -38,37 +78,59 @@ function Chat() {
         const channel = pusher.subscribe('messages');
         channel.bind('inserted', function (data) {
             // alert(JSON.stringify(data));
-            setMessages([...Messages, data]);
+            if(data.threadId===roomId){
+                if(data.sender!==User.uid){
+                    setMessages([...Messages, data]);
+                }
+               
+            }
         });
         return () => {
             channel.unbind_all()
             channel.unsubscribe()
         }
 
-    }, [Messages])
+    }, [Messages, roomId])
 
 
 
     const sendMessage = async (e) => {
         e.preventDefault();
-        await axios.post('/messages/new', { name: "sudeep", message: userMessage, timestamp: new Date().toISOString(), recieved: false });
+        let data = {
+            threadId:roomId, 
+            sender: User.uid , 
+            message: userMessage, 
+            timestamp: new Date().toISOString(), 
+            status: 0,
+          
+        }
+       
+        setMessages([...Messages, data]);
         setUserMessage('');
+        
+     
+        await axios.post('/messages/new', {data});
     }
+
+   
     return (
+        <div className="main__chat">
+        {/* <Sidebar /> */}
         <div className="chat">
             <div className="chat__header">
-                <Avatar />
+                { isgroup ? 
+                 <Avatar src={" "} /> :
+                <Avatar src={recipentName.photoUrl || " "} />
+}           
                 <div className="chat__headerInfo">
-                    <h3>Room Name</h3>
-                    <p>Last seen at..</p>
+                    { isgroup ? 
+                    <h3>{recipentName.roomName || "Message not accepted"}</h3>
+ :
+ <h3>{recipentName.displayName || "Message not accepted"}</h3>}
+                    {/* <p>Last seen at..</p> */}
                 </div>
                 <div className="chat__headerRight">
-                    <IconButton>
-                        <SearchOutlined />
-                    </IconButton>
-                    <IconButton>
-                        <AttachFile />
-                    </IconButton>
+                   
                     <IconButton>
                         <MoreVert />
                     </IconButton>
@@ -76,34 +138,49 @@ function Chat() {
             </div>
 
             {/* body */}
-            <div className="chat__body">
-                {Messages.map((message) => (
-                    <p className={`chat__message ${message.recieved ? '' : 'chat__reciever'}`}>
-                        <span className="chat__name">{message.name}</span>
-                        {message.message}
-                        <span className="chat__timestamp">
-                            {message.timestamp}
-                        </span>
-                    </p>
-                ))}
-
-
-
-            </div>
-
+            {/* <div className="chat__body"> */}
+                <ScrollToBottom className="chat__body" >
+                    {Messages.map((message, key) => {
+                      return(<p key={key} className={`chat__message ${message.sender===User.uid ? 'chat__reciever' : ''}`}>
+                            {ReactEmoji.emojify(message.message)}
+                            <span className="chat__timestamp">
+                                { new Date(message.timestamp).getFullYear() +"-"+ parseInt(new Date(message.timestamp).getUTCMonth()+1)+"-"+new Date(message.timestamp).getUTCDate()+" "+new Date(message.timestamp).toLocaleTimeString("en-US",{timeZone:"Asia/Kathmandu"}) }
+                                <span className="icon">
+                                    {
+                                        (message.sender===User.uid) ? <SubdirectoryArrowLeftIcon/> : <SubdirectoryArrowRightIcon/>
+                                       
+                                    }
+                                    
+                                </span>
+                            </span>
+                        </p>)
+})}
+                </ScrollToBottom>
+            {/* </div> */}
             <div className="chat__footer">
+                <IconButton onClick={()=>setchooseEmoji(!chooseEmoji)}>
                 <InsertEmoticonIcon />
+                </IconButton>   
+                <div className="emojiBar">
+                {
+                    chooseEmoji &&  <Picker onEmojiClick={onEmojiClick} native />
+                }
+                </div>
+               
                 <form>
                     <input
                         placeholder="Enter message..."
                         type="text"
                         value={userMessage}
                         onChange={e => setUserMessage(e.target.value)}
+                        onClick={() => setchooseEmoji(false) }
                     />
+                    
                     <button type="submit" onClick={e => sendMessage(e) }>SEND</button>
                 </form>
-                <MicIcon />
+                
             </div>
+        </div>
         </div>
     )
 }

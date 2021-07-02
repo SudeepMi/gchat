@@ -1,10 +1,13 @@
 import mongoose from 'mongoose'
 
-const appSchema = mongoose.Schema({
-    message:String,
-    name:String,
-    timestamp:String,
-    recieved:Boolean
+const appUsersSchema = mongoose.Schema({
+   uid:String,
+   displayName:String,
+   photoUrl:String,
+   email:String,
+   phone:String,
+   idToken:Object,
+//    UserName:String
 })
 
-export default mongoose.model("messages",appSchema);
+export default mongoose.model("users",appUsersSchema);

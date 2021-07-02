@@ -1,7 +1,7 @@
 .chat{
     display: flex;
     flex-direction: column;
-    flex: 0.65;
+    flex: 1 1;
 }
 
 .chat__header{
@@ -25,22 +25,29 @@
 }
 
 .chat__body{
-    flex: 1;
-    padding: 30px;
-    overflow: scroll;
+    flex: 1 1;
+    overflow-x: auto;
     background-image: url(https://img.freepik.com/free-vector/watercolor-texture-background_87374-48.jpg?size=626&ext=jpg);
     background-size: cover;
-    background-position:center;
+    background-position: center;
     background-repeat: no-repeat;
+    object-fit: contain;
+    overflow-y: clip;
 }
 .chat__message{
+    word-break: break-all;
+    flex-wrap: wrap;
+    margin: 10px;
     position: relative;
     font-size: 16px;
-    padding:10px;
+    padding: 10px;
+    width: -moz-fit-content;
     width: fit-content;
+    max-width: 50%;
     border-radius: 10px;
     background-color: white;
-    margin-bottom: 30px;
+    margin-bottom: 3px;
+
 }
 
 .chat__name{
@@ -89,3 +96,49 @@
     padding: 10px;
     color: gray;
 }
+.chat__body .icon{
+    justify-content: space-around;
+    font-size: 1px;
+    color: rgb(4, 4, 146);
+    object-fit: contain;
+    display: flex;
+    width: 29%;
+    padding: 0px;
+}
+
+
+.chat__body .icon svg{
+    font-size: 10px;
+    font-weight: 800;
+   
+}
+.emojiBar{
+    position: absolute;
+    bottom: 120px;
+}
+.main__chat{
+    width: 100%;
+    display: flex;
+    flex: 0.65 1;
+}
+.file-input{
+    display: none;
+}
+
+@media only screen and (max-width: 640px) {
+
+    .chat{
+        height: 100vh;
+        flex: 1 1;
+    }
+    .main__chat{
+        flex: 1 !important;
+    }
+
+    .main__chat__body  .sidebar{
+        display: none !important;
+    }
+    .chat__header{
+        padding: 5px 15px;
+    }
+    }

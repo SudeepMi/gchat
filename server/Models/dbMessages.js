@@ -1,10 +1,12 @@
 import mongoose from 'mongoose'
 
 const appSchema = mongoose.Schema({
+    threadId:String,
     message:String,
-    name:String,
+    sender:String,
     timestamp:String,
-    recieved:Boolean
+    status:Boolean,
+    isFile:Boolean
 })
 
 export default mongoose.model("messages",appSchema);
