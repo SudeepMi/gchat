@@ -126,7 +126,7 @@ function Chat() {
                     { isgroup ? 
                     <h3>{recipentName.roomName || "Message not accepted"}</h3>
  :
- <h3>{recipentName.displayName || "Message not accepted"}</h3>}
+ <h3>{recipentName.displayname || "Message not accepted"}</h3>}
                     {/* <p>Last seen at..</p> */}
                 </div>
                 <div className="chat__headerRight">

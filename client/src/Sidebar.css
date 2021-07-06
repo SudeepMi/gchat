@@ -57,6 +57,7 @@
     flex: 1;
     background-color: #c2ffe5b0;
     overflow-y: auto;
+    max-height: 63vh;
 }
 .createNewGroup{
     font-size: 15px;

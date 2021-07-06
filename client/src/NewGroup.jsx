@@ -39,7 +39,7 @@ function NewGroup() {
         return alert("Select at least two members");
       }
       axios.post('/createNewGroup',{roomName: GroupName, members: Members}).then((result)=>{
-          history.push(`/threads/${result.data._id}/true`);
+          history.push(`/thread/${result.data._id}/true`);
       })
     }
 
