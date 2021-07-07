@@ -139,7 +139,7 @@ function Chat() {
         }else{
             axios.post('/deleteThread',{threadid: roomId}).then(res=>{
                 if(res.status==200){
-                    history.push('/')
+                    Locations.href="/";
                 }
             })
         }
