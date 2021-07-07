@@ -45,7 +45,7 @@ function Chat() {
 
     useEffect( () => {
         axios.get(`/messages/sync?roomId=${roomId}`).then((res) => {
-            // console.log(res);
+            console.log(res.data);
             setMessages(res.data);
         })
         if (isgroup) {
@@ -64,7 +64,16 @@ function Chat() {
         }
     },[roomId])
 
-
+    const username = async (recipentId) =>{
+        let username = "";
+        if(isgroup){
+            await axios.post('/findUser',{ uid: recipentId }).then((result)=>{
+                 username = result.data.displayName;
+            }).finally(()=>username)
+            return username;
+        }
+        
+    }
 
     useEffect(() => {
 
@@ -124,7 +133,7 @@ function Chat() {
 }           
                 <div className="chat__headerInfo">
                     { isgroup ? 
-                    <h3>{recipentName.roomName || "Message not accepted"}</h3>
+                    <h3>{recipentName.roomName || "Loading....."}</h3>
  :
  <h3>{recipentName.displayname || "Message not accepted"}</h3>}
                     {/* <p>Last seen at..</p> */}
@@ -142,9 +151,11 @@ function Chat() {
                 <ScrollToBottom className="chat__body" >
                     {Messages.map((message, key) => {
                       return(<p key={key} className={`chat__message ${message.sender===User.uid ? 'chat__reciever' : ''}`}>
+                          <span>{ console.log(username(message.sender).then(res=>res)) }</span>
                             {ReactEmoji.emojify(message.message)}
                             <span className="chat__timestamp">
                                 { new Date(message.timestamp).getFullYear() +"-"+ parseInt(new Date(message.timestamp).getUTCMonth()+1)+"-"+new Date(message.timestamp).getUTCDate()+" "+new Date(message.timestamp).toLocaleTimeString("en-US",{timeZone:"Asia/Kathmandu"}) }
+                                
                                 <span className="icon">
                                     {
                                         (message.sender===User.uid) ? <SubdirectoryArrowLeftIcon/> : <SubdirectoryArrowRightIcon/>
