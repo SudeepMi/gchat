@@ -16,6 +16,7 @@ import AttachmentIcon from '@material-ui/icons/Attachment';
 import Sidebar from './Sidebar'
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import { useHistory, useLocation } from 'react-router-dom';
 
 
 
@@ -29,6 +30,9 @@ function Chat() {
     const [Messages, setMessages] = useState([]);
     const [recipentName, setrecipentName] = useState('')
     const [chooseEmoji, setchooseEmoji] = useState(false);
+
+    const history = useHistory()
+    const Locations = window.location
 
     
     const onEmojiClick = (event, emojiObject) => {
@@ -64,14 +68,17 @@ function Chat() {
         }
     },[roomId])
 
-    const username = async (recipentId) =>{
-        let username = "";
+    const username =  async (recipentId) =>{
+        let data = ""
+       
         if(isgroup){
-            await axios.post('/findUser',{ uid: recipentId }).then((result)=>{
-                 username = result.data.displayName;
-            }).finally(()=>username)
-            return username;
+            await axios.post('/findUser',{ uid: recipentId }).then((result)=>{ 
+                data =  result.data.displayName;  
+            })
+        
         }
+
+        return data;
         
     }
 
@@ -117,8 +124,25 @@ function Chat() {
         setMessages([...Messages, data]);
         setUserMessage('');
         
-     
         await axios.post('/messages/new', {data});
+    }
+
+    const DeleteThread = (e) =>{
+        e.preventDefault()
+        alert("This action cannot be reverted")
+        if (isgroup) {
+            axios.post('/deletegroup',{groupid: roomId}).then(res=>{
+                if(res.status==200){
+                    Locations.href="/";
+                }
+            })
+        }else{
+            axios.post('/deleteThread',{threadid: roomId}).then(res=>{
+                if(res.status==200){
+                    history.push('/')
+                }
+            })
+        }
     }
 
    
@@ -140,7 +164,7 @@ function Chat() {
                 </div>
                 <div className="chat__headerRight">
                    
-                    <IconButton>
+                    <IconButton onClick={ (e)=>DeleteThread(e) }>
                         <DeleteForeverIcon />
                     </IconButton>
                 </div>
@@ -150,8 +174,12 @@ function Chat() {
             {/* <div className="chat__body"> */}
                 <ScrollToBottom className="chat__body" >
                     {Messages.map((message, key) => {
+                        let names = ""
+                        username(message.sender).then(res=>{
+                            names = res
+                        })
                       return(<p key={key} className={`chat__message ${message.sender===User.uid ? 'chat__reciever' : ''}`}>
-                          <span>{ console.log(username(message.sender).then(res=>res)) }</span>
+                          <span>{ names }</span>
                             {ReactEmoji.emojify(message.message)}
                             <span className="chat__timestamp">
                                 { new Date(message.timestamp).getFullYear() +"-"+ parseInt(new Date(message.timestamp).getUTCMonth()+1)+"-"+new Date(message.timestamp).getUTCDate()+" "+new Date(message.timestamp).toLocaleTimeString("en-US",{timeZone:"Asia/Kathmandu"}) }

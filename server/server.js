@@ -226,6 +226,34 @@ app.post('/findGroup', (req,res)=>{
     
 })
 
+app.post('/deletegroup', (req,res)=>{
+    const id = req.body.groupid;
+    Groups.findOneAndDelete({"_id": ObjectId(id)},(err,data)=>{
+        if(err){
+            res.status(500).send(err)
+        }else{
+            console.log(data);
+            res.status(200).send(data)
+        }
+    })
+
+})
+
+
+app.post('/deleteThread', (req,res)=>{
+    const id = req.body.threadid;
+    Rooms.findOneAndDelete({"_id": ObjectId(id)},(err,data)=>{
+        if(err){
+            res.status(500).send(err)
+        }else{
+            console.log(data);
+            res.status(200).send(data)
+        }
+    })
+
+
+})
+
 
 
 
