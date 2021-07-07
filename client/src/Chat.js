@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import './Chat.css'
 import { Avatar, IconButton } from '@material-ui/core'
-import MoreVert from '@material-ui/icons/MoreVert'
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon'
 import axios from './axios';
 import { useParams } from 'react-router';
@@ -141,7 +141,7 @@ function Chat() {
                 <div className="chat__headerRight">
                    
                     <IconButton>
-                        <MoreVert />
+                        <DeleteForeverIcon />
                     </IconButton>
                 </div>
             </div>
