@@ -129,7 +129,7 @@ function Chat() {
 
     const DeleteThread = (e) =>{
         e.preventDefault()
-        alert("This action cannot be reverted")
+        alert(" - This action cannot be reverted \n - This will delete all messages in thread \n - This will delete your connections as well")
         if (isgroup) {
             axios.post('/deletegroup',{groupid: roomId}).then(res=>{
                 if(res.status==200){
