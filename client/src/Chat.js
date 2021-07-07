@@ -30,6 +30,7 @@ function Chat() {
     const [Messages, setMessages] = useState([]);
     const [recipentName, setrecipentName] = useState('')
     const [chooseEmoji, setchooseEmoji] = useState(false);
+    const [senderName, setsenderName] = useState('')
 
     const history = useHistory()
     const Locations = window.location
@@ -49,12 +50,12 @@ function Chat() {
 
     useEffect( () => {
         axios.get(`/messages/sync?roomId=${roomId}`).then((res) => {
-            console.log(res.data);
+            // console.log(res.data);
             setMessages(res.data);
         })
         if (isgroup) {
             axios.post('/findGroup',{id:roomId}).then((res)=>{
-                console.log(res)
+                // console.log(res)
                 setrecipentName(res.data)
             })
         }
@@ -68,17 +69,23 @@ function Chat() {
         }
     },[roomId])
 
-    const username =  async (recipentId) =>{
-        let data = ""
+    const username = (recipentId) =>{
        
         if(isgroup){
-            await axios.post('/findUser',{ uid: recipentId }).then((result)=>{ 
-                data =  result.data.displayName;  
+            const data = JSON.parse(localStorage.getItem('threads')) || [];
+            const newdata = data.filter((thread)=>{
+                if(thread.recipentId==recipentId){
+                    return thread;
+                }
             })
-        
+
+            if(newdata.length > 0){
+                return newdata[0].displayname
+            }
+            return null
         }
 
-        return data;
+        
         
     }
 
@@ -174,12 +181,10 @@ function Chat() {
             {/* <div className="chat__body"> */}
                 <ScrollToBottom className="chat__body" >
                     {Messages.map((message, key) => {
-                        let names = ""
-                        username(message.sender).then(res=>{
-                            names = res
-                        })
+                       
+                           
                       return(<p key={key} className={`chat__message ${message.sender===User.uid ? 'chat__reciever' : ''}`}>
-                          <span>{ names }</span>
+                          { username(message.sender) ? <><small>{ username(message.sender) }</small><br /></> : null }
                             {ReactEmoji.emojify(message.message)}
                             <span className="chat__timestamp">
                                 { new Date(message.timestamp).getFullYear() +"-"+ parseInt(new Date(message.timestamp).getUTCMonth()+1)+"-"+new Date(message.timestamp).getUTCDate()+" "+new Date(message.timestamp).toLocaleTimeString("en-US",{timeZone:"Asia/Kathmandu"}) }
