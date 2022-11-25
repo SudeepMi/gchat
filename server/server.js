@@ -28,7 +28,7 @@ app.use(cors())
 //app config
 
 
-const uri = "mongodb+srv://Sudeep:gPwrt6hx1BtcJo9J@cluster0.0waam.gcp.mongodb.net/eureka?retryWrites=true&w=majority";
+const uri = "mongodb://localhost:27017/gchat?retryWrites=true&w=majority&replica=true";
 mongoose.connect(uri,{
     // useCreateIndex:true,
     useNewUrlParser:true,
@@ -41,26 +41,26 @@ mongoose.connect(uri,{
 app.get('/',(req,res)=> res.status(200).send("Hello from backend"));
 
 const db = mongoose.connection
-db.once('open',()=>{
-    console.log('db is connected');
-    const messages = db.collection('messages')
-    const changeStream = messages.watch()
-    changeStream.on('change',(change)=>{
-        // console.log(change);
-        if(change.operationType==='insert'){
-            const details = change.fullDocument;
-            pusher.trigger('messages','inserted',{
-                sender:details.sender,
-                message:details.message,
-                timestamp:details.timestamp,
-                status:0,
-                threadId:details.threadId
-            });
-        }else{
-            console.log('error on pusher');
-        }
-    })
-})
+// db.once('open',()=>{
+//     console.log('db is connected');
+//     const messages = db.collection('messages')
+//     const changeStream = messages.watch()
+//     changeStream.on('change',(change)=>{
+//         // console.log(change);
+//         if(change.operationType==='insert'){
+//             const details = change.fullDocument;
+//             pusher.trigger('messages','inserted',{
+//                 sender:details.sender,
+//                 message:details.message,
+//                 timestamp:details.timestamp,
+//                 status:0,
+//                 threadId:details.threadId
+//             });
+//         }else{
+//             console.log('error on pusher');
+//         }
+//     })
+// })
 
 const pusher = new Pusher({
   appId: "1202226",
